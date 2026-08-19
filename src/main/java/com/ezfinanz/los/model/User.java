@@ -45,6 +45,9 @@ public class User {
     @Column(nullable = false)
     private boolean isKycVerified = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String selfieImageBase64;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

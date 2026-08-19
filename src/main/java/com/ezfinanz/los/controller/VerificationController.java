@@ -37,9 +37,11 @@ public class VerificationController {
     }
 
     @PostMapping("/{userId}/finalize")
-    public ResponseEntity<?> finalizeVerification(@PathVariable Long userId) {
+    public ResponseEntity<?> finalizeVerification(@PathVariable Long userId,
+            @RequestBody(required = false) Map<String, String> request) {
         try {
-            verificationService.finalizeVerification(userId);
+            String selfie = request != null ? request.get("selfieImageBase64") : null;
+            verificationService.finalizeVerification(userId, selfie);
             return ResponseEntity.ok(Map.of("message", "User verification successfully completed!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

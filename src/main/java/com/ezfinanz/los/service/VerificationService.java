@@ -47,11 +47,14 @@ public class VerificationService {
         bankRepository.save(bd);
     }
 
-    public void finalizeVerification(Long userId) {
+    public void finalizeVerification(Long userId, String selfieImageBase64) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         // Finalize
         user.setKycVerified(true);
+        if (selfieImageBase64 != null) {
+            user.setSelfieImageBase64(selfieImageBase64);
+        }
         userRepository.save(user);
     }
 
