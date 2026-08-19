@@ -37,9 +37,11 @@ public class User {
     @Column(nullable = false)
     private Role role; // ADMIN or CUSTOMER
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isEmailVerified = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isKycVerified = false;
 
