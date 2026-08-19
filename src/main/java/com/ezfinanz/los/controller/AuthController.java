@@ -2,6 +2,7 @@ package com.ezfinanz.los.controller;
 
 import com.ezfinanz.los.dto.LoginRequest;
 import com.ezfinanz.los.dto.RegisterRequest;
+import com.ezfinanz.los.dto.GoogleAuthRequest;
 import com.ezfinanz.los.model.User;
 import com.ezfinanz.los.service.AuthService;
 import jakarta.validation.Valid;
@@ -62,6 +63,27 @@ public class AuthController {
 
             return ResponseEntity.ok(response);
 
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleAuthRequest request) {
+        try {
+            User user = authService.googleLogin(request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Google OAuth successful");
+            response.put("userId", user.getId());
+            response.put("email", user.getEmail());
+            response.put("role", user.getRole());
+            response.put("fullName", user.getFullName());
+            response.put("isKycVerified", user.isKycVerified());
+            response.put("phone", user.getPhone());
+            response.put("createdAt", user.getCreatedAt());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

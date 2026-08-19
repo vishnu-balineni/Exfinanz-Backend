@@ -2,6 +2,7 @@ package com.ezfinanz.los.service;
 
 import com.ezfinanz.los.dto.LoginRequest;
 import com.ezfinanz.los.dto.RegisterRequest;
+import com.ezfinanz.los.dto.GoogleAuthRequest;
 import com.ezfinanz.los.model.Role;
 import com.ezfinanz.los.model.User;
 import com.ezfinanz.los.repository.UserRepository;
@@ -49,5 +50,23 @@ public class AuthService {
         }
 
         return user;
+    }
+
+    public User googleLogin(GoogleAuthRequest request) {
+        // Find user by Google Email. If they exist, log them in!
+        return userRepository.findByEmail(request.getEmail()).orElseGet(() -> {
+            // New User? Create account seamlessly with Google Data
+            User newUser = User.builder()
+                    .fullName(request.getFullName())
+                    .email(request.getEmail())
+                    .phone("") // Phone not provided by Google basic profile
+                    .password(passwordEncoder.encode(request.getGoogleId() + "GOOGLE_SECURE_AUTH")) // Dummy secure
+                                                                                                    // password
+                    .role(Role.ROLE_CUSTOMER)
+                    .isEmailVerified(true) // Google inherently verifies emails!
+                    .isKycVerified(false)
+                    .build();
+            return userRepository.save(newUser);
+        });
     }
 }
