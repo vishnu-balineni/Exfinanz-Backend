@@ -34,4 +34,22 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}/phone")
+    public ResponseEntity<?> updatePhone(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        try {
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String newPhone = payload.get("phone");
+            if (newPhone == null || newPhone.isEmpty()) {
+                throw new RuntimeException("Phone number is required");
+            }
+            user.setPhone(newPhone);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("message", "Phone successfully updated", "phone", user.getPhone()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

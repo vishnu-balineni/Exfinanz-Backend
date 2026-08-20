@@ -59,7 +59,7 @@ public class AuthService {
             User newUser = User.builder()
                     .fullName(request.getFullName())
                     .email(request.getEmail())
-                    .phone("") // Phone not provided by Google basic profile
+                    .phone("OAuth-" + request.getGoogleId()) // Unique dummy phone for OAuth users
                     .password(passwordEncoder.encode(request.getGoogleId() + "GOOGLE_SECURE_AUTH")) // Dummy secure
                                                                                                     // password
                     .role(Role.ROLE_CUSTOMER)
