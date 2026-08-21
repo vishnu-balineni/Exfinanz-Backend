@@ -102,4 +102,14 @@ public class LoanController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/{loanId}/foreclose")
+    public ResponseEntity<?> forecloseLoan(@PathVariable Long loanId) {
+        try {
+            Map<String, Object> result = loanService.forecloseLoan(loanId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

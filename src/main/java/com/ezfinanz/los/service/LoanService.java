@@ -174,4 +174,37 @@ public class LoanService {
         response.put("receipt", "RCPT-" + System.currentTimeMillis());
         return response;
     }
+
+    public Map<String, Object> forecloseLoan(Long loanId) {
+        LoanApplication application = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        List<LoanRepaymentSchedule> schedules = emiRepository
+                .findByLoanApplicationIdOrderByInstallmentNumberAsc(loanId);
+
+        List<LoanRepaymentSchedule> pendingSchedules = schedules.stream()
+                .filter(s -> "PENDING".equals(s.getStatus()))
+                .toList();
+
+        if (pendingSchedules.isEmpty()) {
+            throw new RuntimeException("No pending balance found for this loan");
+        }
+
+        BigDecimal totalPaid = BigDecimal.ZERO;
+        for (LoanRepaymentSchedule schedule : pendingSchedules) {
+            schedule.setStatus("PAID");
+            totalPaid = totalPaid.add(schedule.getPrincipalComponent()); // Usually foreclosure waives future interest
+        }
+        emiRepository.saveAll(pendingSchedules);
+
+        // Mark the loan as fully paid / closed
+        application.setStatus("CLOSED");
+        loanRepository.save(application);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Loan foreclosed successfully");
+        response.put("paidAmount", totalPaid);
+        response.put("receipt", "FCLS-" + System.currentTimeMillis());
+        return response;
+    }
 }
