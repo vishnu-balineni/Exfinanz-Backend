@@ -21,4 +21,6 @@ public class LoanApplyRequest {
 
     @NotBlank(message = "Purpose is required")
     private String purpose;
+
+    private Boolean isUrgent = false;
 }

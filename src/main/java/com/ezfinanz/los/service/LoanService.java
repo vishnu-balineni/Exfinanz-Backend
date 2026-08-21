@@ -38,6 +38,7 @@ public class LoanService {
                 .requestedAmount(request.getRequestedAmount())
                 .termMonths(request.getTermMonths())
                 .purpose(request.getPurpose())
+                .isUrgent(request.getIsUrgent() != null ? request.getIsUrgent() : false)
                 .status("PENDING_ADMIN_REVIEW") // Jump instantly to Admin review
                 .isKycSubmitted(true) // Deprecated flag, kept for backward compatibility if needed
                 .build();
@@ -149,5 +150,28 @@ public class LoanService {
             emiRepository.save(schedule);
             nextDueDate = nextDueDate.plusMonths(1);
         }
+    }
+
+    public Map<String, Object> payNextEmi(Long loanId) {
+        LoanApplication application = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        List<LoanRepaymentSchedule> schedules = emiRepository
+                .findByLoanApplicationIdOrderByInstallmentNumberAsc(loanId);
+
+        LoanRepaymentSchedule nextEmi = schedules.stream()
+                .filter(s -> "PENDING".equals(s.getStatus()))
+                .sorted((a, b) -> a.getDueDate().compareTo(b.getDueDate()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No pending EMI found for this loan"));
+
+        nextEmi.setStatus("PAID");
+        emiRepository.save(nextEmi);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Payment successful");
+        response.put("paidAmount", nextEmi.getEmiAmount());
+        response.put("receipt", "RCPT-" + System.currentTimeMillis());
+        return response;
     }
 }

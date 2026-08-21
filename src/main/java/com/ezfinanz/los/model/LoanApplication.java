@@ -43,6 +43,10 @@ public class LoanApplication {
     @Column(nullable = false)
     private boolean isKycSubmitted = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isUrgent = false;
+
     // Optional fields for when the admin takes action
     private BigDecimal approvedAmount;
     private String adminNotes;
