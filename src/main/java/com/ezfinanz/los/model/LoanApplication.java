@@ -44,7 +44,7 @@ public class LoanApplication {
     private boolean isKycSubmitted = false;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isUrgent = false;
 
     // Optional fields for when the admin takes action
